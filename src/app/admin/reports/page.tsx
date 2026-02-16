@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { TimeEntry, AuditLog } from "@/types";
 import { timeService } from "@/services/time-service";
 import { auditService } from "@/services/audit-service";
-import { authService } from "@/services/auth-service";
+import { getAdminReportsData } from "../actions";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,21 +15,42 @@ export default function AdminReportsPage() {
     const [entries, setEntries] = useState<TimeEntry[]>([]);
     const [logs, setLogs] = useState<AuditLog[]>([]);
     const [userMap, setUserMap] = useState<Record<string, string>>({});
+    const [userTimezoneMap, setUserTimezoneMap] = useState<Record<string, string>>({});
 
     const refreshData = async () => {
-        const [allEntries, allLogs, allUsers] = await Promise.all([
-            timeService.getAllEntries(),
-            auditService.getLogs(),
-            authService.getAllUsers()
-        ]);
+        try {
+            // 1. Fetch Server Data (Timesheets + Profiles)
+            const { data, error } = await getAdminReportsData();
 
-        // Create User Map for Display
-        const map: Record<string, string> = {};
-        allUsers.forEach(u => map[u.id] = u.name);
-        setUserMap(map);
+            if (error) {
+                console.error("Failed to load reports data:", error);
+                return;
+            }
 
-        setEntries(allEntries.reverse()); // Newest first
-        setLogs(allLogs);
+            if (!data) return;
+
+            const { entries: serverEntries, profiles } = data;
+
+            // 2. Fetch Client-Side Audit Logs (Mock/LocalStorage)
+            const allLogs = await auditService.getLogs();
+
+            // 3. Create Maps
+            const map: Record<string, string> = {};
+            const tzMap: Record<string, string> = {};
+
+            profiles.forEach((p: any) => {
+                map[p.id] = p.name || p.email;
+                tzMap[p.id] = p.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+            });
+
+            setUserMap(map);
+            setUserTimezoneMap(tzMap);
+            setEntries(serverEntries);
+            setLogs(allLogs);
+
+        } catch (err) {
+            console.error("Error refreshing data:", err);
+        }
     };
 
     useEffect(() => {
@@ -68,9 +89,9 @@ export default function AdminReportsPage() {
                                     {entries.map(entry => (
                                         <TableRow key={entry.id}>
                                             <TableCell className="font-medium">{userMap[entry.userId] || entry.userId}</TableCell>
-                                            <TableCell>{formatToLocalDate(entry.startTime)}</TableCell>
-                                            <TableCell>{formatToLocalTime(entry.startTime)}</TableCell>
-                                            <TableCell>{entry.endTime ? formatToLocalTime(entry.endTime) : "Active"}</TableCell>
+                                            <TableCell>{formatToLocalDate(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
+                                            <TableCell>{formatToLocalTime(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
+                                            <TableCell>{entry.endTime ? formatToLocalTime(entry.endTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : "Active"}</TableCell>
                                             <TableCell>{calculateDuration(entry.startTime, entry.endTime)}</TableCell>
                                             <TableCell>
                                                 <EditSessionDialog entry={entry} onSuccess={refreshData} />
@@ -110,7 +131,7 @@ export default function AdminReportsPage() {
                                                 <div className="text-xs space-y-1">
                                                     {log.changes.map((c, i) => (
                                                         <div key={i}>
-                                                            <span className="font-semibold">{c.field}:</span> {typeof c.before === 'string' ? formatToLocalTime(c.before) : c.before} → {typeof c.after === 'string' ? formatToLocalTime(c.after) : c.after}
+                                                            <span className="font-semibold">{c.field}:</span> {typeof c.before === 'string' ? formatToLocalTime(c.before, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.before} → {typeof c.after === 'string' ? formatToLocalTime(c.after, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.after}
                                                         </div>
                                                     ))}
                                                 </div>

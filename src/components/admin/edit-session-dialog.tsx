@@ -19,8 +19,22 @@ interface EditSessionDialogProps {
 export function EditSessionDialog({ entry, onSuccess }: EditSessionDialogProps) {
     const { user } = useAuth();
     const [open, setOpen] = useState(false);
-    const [startTime, setStartTime] = useState(format(new Date(entry.startTime), "yyyy-MM-dd'T'HH:mm"));
-    const [endTime, setEndTime] = useState(entry.endTime ? format(new Date(entry.endTime), "yyyy-MM-dd'T'HH:mm") : "");
+
+    // Helper to safely format dates for datetime-local input
+    const safelyFormat = (dateStr: string | null | undefined) => {
+        if (!dateStr) return "";
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return "";
+            return format(date, "yyyy-MM-dd'T'HH:mm");
+        } catch (e) {
+            console.error("Error formatting date:", dateStr, e);
+            return "";
+        }
+    };
+
+    const [startTime, setStartTime] = useState(safelyFormat(entry.startTime));
+    const [endTime, setEndTime] = useState(safelyFormat(entry.endTime));
 
     const handleSave = async () => {
         if (!user || user.role !== 'admin') return;

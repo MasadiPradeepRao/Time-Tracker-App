@@ -1,62 +1,104 @@
+import { supabase } from '@/lib/supabase';
 import { User } from '@/types';
 
-// Mock Users
-const MOCK_USERS: User[] = [
-    { id: 'u1', email: 'admin@test.com', role: 'admin', name: 'Admin User' },
-    { id: 'u2', email: 'employee@test.com', role: 'employee', name: 'John Doe' },
-    { id: 'u3', email: 'emp2@test.com', role: 'employee', name: 'Jane Smith' },
-];
-
-const SESSION_KEY = 'time_tracking_session';
-
 export const authService = {
-    // Simulate sending OTP
-    signInWithOtp: async (email: string): Promise<{ data: any; error: any }> => {
-        const user = MOCK_USERS.find((u) => u.email === email);
-        if (!user) return { data: null, error: { message: 'User not found' } };
+    // Sign up / Invite (starts with Admin Invite)
+    signUp: async (email: string, name: string) => {
+        try {
+            const response = await fetch('/api/invite-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, name }),
+            });
+            const result = await response.json();
 
-        console.log(`[Mock Auth] OTP sent to ${email}. Use code 123456.`);
-        return { data: { message: 'Check your email for the login link!' }, error: null };
+            if (!response.ok) {
+                return { error: { message: result.error || 'Failed to send invite' } };
+            }
+
+            return { data: result.data, error: null };
+        } catch (error: any) {
+            return { error: { message: error.message || 'Network error' } };
+        }
     },
 
-    // Simulate verifying OTP
-    verifyOtp: async (email: string, token: string): Promise<{ data: { session: any; user: User } | null; error: any }> => {
-        if (token !== '123456') return { data: null, error: { message: 'Invalid token' } };
+    // Sign in with email and password
+    signInWithPassword: async (email: string, password: string) => {
+        return await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+    },
 
-        const user = MOCK_USERS.find((u) => u.email === email);
-        if (!user) return { data: null, error: { message: 'User not found' } };
+    // Send password reset email
+    resetPasswordForEmail: async (email: string) => {
+        return await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/reset` : undefined,
+        });
+    },
 
-        const session = {
-            user,
-            access_token: 'mock_access_token_' + Date.now(),
-        };
+    // Update password (used in reset flow)
+    updatePassword: async (newPassword: string) => {
+        return await supabase.auth.updateUser({
+            password: newPassword,
+        });
+    },
 
-        // Client-side persistence (if running in browser)
-        if (typeof window !== 'undefined') {
-            localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    // Ensure profile exists with INSERT ONLY if non-existent
+    ensureProfile: async (userId: string, email: string, name?: string) => {
+        try {
+            // 1. Quick check for existence
+            const { data: existing } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('id', userId)
+                .single();
+
+            if (existing) return true;
+
+            // 2. Only insert if missing
+            const { error } = await supabase
+                .from('profiles')
+                .insert({
+                    id: userId,
+                    email: email,
+                    name: name || email.split('@')[0],
+                    // role: 'employee', // REMOVED: Never set role from client
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                });
+
+            return !error;
+        } catch (e) {
+            return false;
         }
-
-        return { data: { session, user }, error: null };
     },
 
     // Get current session
-    getSession: async (): Promise<{ data: { session: any } | null }> => {
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem(SESSION_KEY);
-            if (stored) return { data: { session: JSON.parse(stored) } };
-        }
-        return { data: null };
+    getSession: async () => {
+        return await supabase.auth.getSession();
+    },
+
+    // Get current user
+    getUser: async () => {
+        return await supabase.auth.getUser();
     },
 
     signOut: async () => {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(SESSION_KEY);
-        }
+        return await supabase.auth.signOut();
     },
 
-    getUserByEmail: (email: string) => MOCK_USERS.find(u => u.email === email),
+    // Admin: Get all users
+    getAllUsers: async (): Promise<User[]> => {
+        const { data } = await supabase
+            .from('profiles')
+            .select('*');
 
-    getAllUsers: async () => {
-        return MOCK_USERS;
+        return (data || []).map(profile => ({
+            id: profile.id,
+            email: profile.email,
+            name: profile.name || profile.email.split('@')[0],
+            role: profile.role,
+            timezone: profile.timezone
+        }));
     }
 };

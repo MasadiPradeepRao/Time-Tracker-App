@@ -1,15 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@/types';
+import { User, Role } from '@/types';
 import { authService } from '@/services/auth-service';
+import { supabase } from '@/lib/supabase';
 import { useRouter, usePathname } from 'next/navigation';
+import { getUserProfile } from '@/app/auth/actions';
 
 interface AuthContextType {
     user: User | null;
     loading: boolean;
-    login: (email: string) => Promise<any>;
-    verifyOtp: (email: string, code: string) => Promise<any>;
+    login: (email: string, password: string) => Promise<any>;
+    signup: (email: string, name: string) => Promise<any>;
     logout: () => Promise<void>;
 }
 
@@ -17,7 +19,7 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
     login: async () => { },
-    verifyOtp: async () => { },
+    signup: async () => { },
     logout: async () => { },
 });
 
@@ -29,41 +31,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const router = useRouter();
     const pathname = usePathname();
 
-    useEffect(() => {
-        const init = async () => {
-            const { data } = await authService.getSession();
-            if (data?.session) {
-                setUser(data.session.user);
+    const loadUser = async () => {
+        try {
+            // Use Server Action to fetch profile (bypasses RLS)
+            const { user: profileUser, error } = await getUserProfile();
+
+            if (profileUser) {
+                setUser(profileUser);
+            } else {
+                // If server action returns null but we have a session, maybe just set basic user?
+                // But getUserProfile handles session check too.
+                // Fallback to checking session if action failed completely?
+                // Let's rely on the action.
+                setUser(null);
             }
+        } catch (error) {
+            console.error("Auth load error:", error);
+            setUser(null);
+        } finally {
             setLoading(false);
-        };
-        init();
-    }, []);
-
-    // Protected Route Logic
-    useEffect(() => {
-        if (loading) return;
-        const isLoginPage = pathname === '/login';
-
-        if (!user && !isLoginPage) {
-            router.push('/login');
-        } else if (user && isLoginPage) {
-            if (user.role === 'admin') router.push('/admin/users');
-            else router.push('/');
         }
-    }, [user, loading, pathname, router]);
-
-
-    const login = async (email: string) => {
-        return authService.signInWithOtp(email);
     };
 
-    const verifyOtp = async (email: string, code: string) => {
-        const { data, error } = await authService.verifyOtp(email, code);
-        if (data?.user) {
-            setUser(data.user);
+    useEffect(() => {
+        loadUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            // Ignore token refresh events to prevent infinite loops if they fail silently
+            if (event === 'TOKEN_REFRESHED') {
+                // Optional: could re-trigger loadUser if needed, but session is usually up to date
+                return;
+            }
+
+            if (session?.user) {
+                await loadUser();
+            } else {
+                setUser(null);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            subscription.unsubscribe();
+        };
+    }, []);
+
+
+
+
+    const login = async (email: string, password: string) => {
+        setLoading(true);
+        try {
+            const result = await authService.signInWithPassword(email, password);
+            if (result.data?.user) {
+                // Removed ensureProfile call from here. loadUser via onAuthStateChange will handle it.
+                // await loadUser(); // onAuthStateChange triggers this automatically
+            }
+            return result;
+        } finally {
+            setLoading(false);
         }
-        return { data, error };
+    };
+
+    const signup = async (email: string, name: string) => {
+        return await authService.signUp(email, name);
     };
 
     const logout = async () => {
@@ -72,10 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/login');
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
+    // Do not block rendering here, let components handle loading state via useAuth()
+    // if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, verifyOtp, logout }}>
+        <AuthContext.Provider value={{ user, loading, login, signup, logout }}>
             {children}
         </AuthContext.Provider>
     );

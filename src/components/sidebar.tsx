@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
-import { LayoutDashboard, Calendar, Users, FileText, LogOut } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function Sidebar() {
@@ -13,19 +13,25 @@ export function Sidebar() {
 
     const links = [
         {
-            label: "Dashboard",
-            href: "/",
+            label: "Employees", // Was "Admin Dashboard"
+            href: "/admin",
+            icon: ShieldCheck,
+            roles: ['admin'],
+        },
+        {
+            label: user?.role === 'admin' ? "Admin Dashboard" : "Dashboard",
+            href: "/dashboard",
             icon: LayoutDashboard,
             roles: ['employee', 'admin'],
         },
         {
-            label: "My Calendar",
-            href: "/calendar",
-            icon: Calendar,
-            roles: ['employee'],
+            label: "Monthly Summary",
+            href: "/summary",
+            icon: BarChart,
+            roles: ['employee', 'admin'],
         },
         {
-            label: "Employees",
+            label: "On Duty", // Was "Employees"
             href: "/admin/users",
             icon: Users,
             roles: ['admin'],
@@ -47,7 +53,8 @@ export function Sidebar() {
 
             <nav className="flex-1 space-y-2">
                 {links.map((link) => {
-                    if (user && !link.roles.includes(user.role)) return null;
+                    const userRole = user?.role;
+                    if (!userRole || !link.roles.includes(userRole)) return null;
 
                     const isActive = pathname === link.href;
                     return (

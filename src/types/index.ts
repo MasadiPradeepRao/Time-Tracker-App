@@ -5,6 +5,7 @@ export interface User {
   email: string;
   role: Role;
   name: string;
+  timezone?: string;
 }
 
 export interface TimeEntry {

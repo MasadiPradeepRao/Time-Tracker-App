@@ -10,18 +10,26 @@ import { formatToLocalTime } from "@/lib/date-utils";
 import { toast } from "sonner";
 import { Clock, Play, Square } from "lucide-react";
 import { intervalToDuration } from "date-fns";
+import { CalendarWidget } from "@/components/dashboard/calendar-widget";
 
 export default function DashboardPage() {
     const { user } = useAuth();
     const [currentSession, setCurrentSession] = useState<TimeEntry | null>(null);
+    const [todayEntries, setTodayEntries] = useState<TimeEntry[]>([]);
     const [duration, setDuration] = useState<string>("0h 0m 0s");
+    const [workedToday, setWorkedToday] = useState<string>("00:00");
     const [loading, setLoading] = useState(true);
 
     const fetchData = async () => {
         if (!user) return;
+        const timezone = user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         try {
-            const session = await timeService.getCurrentSession(user.id);
+            const [session, today] = await Promise.all([
+                timeService.getCurrentSession(user.id),
+                timeService.getTodayEntries(user.id, timezone)
+            ]);
             setCurrentSession(session);
+            setTodayEntries(today);
         } catch (err) {
             console.error(err);
         } finally {
@@ -35,20 +43,39 @@ export default function DashboardPage() {
 
     // Timer logic
     useEffect(() => {
-        if (!currentSession) {
-            setDuration("0h 0m 0s");
-            return;
+        const updateTimers = () => {
+            const now = new Date();
+
+            // 1. Current Session Duration
+            if (currentSession) {
+                const start = new Date(currentSession.startTime);
+                const d = intervalToDuration({ start, end: now });
+                setDuration(`${d.hours || 0}h ${d.minutes || 0}m ${d.seconds || 0}s`);
+            } else {
+                setDuration("0h 0m 0s");
+            }
+
+            // 2. Worked Today Duration
+            let totalMs = 0;
+            todayEntries.forEach(e => {
+                const start = new Date(e.startTime).getTime();
+                const end = e.endTime ? new Date(e.endTime).getTime() : now.getTime();
+                totalMs += (end - start);
+            });
+
+            const totalSeconds = Math.max(0, Math.floor(totalMs / 1000));
+            const wHours = Math.floor(totalSeconds / 3600);
+            const wMinutes = Math.floor((totalSeconds % 3600) / 60);
+            setWorkedToday(`${wHours.toString().padStart(2, '0')}:${wMinutes.toString().padStart(2, '0')}`);
+        };
+
+        updateTimers();
+
+        if (currentSession) {
+            const interval = setInterval(updateTimers, 1000);
+            return () => clearInterval(interval);
         }
-
-        const interval = setInterval(() => {
-            const start = new Date(currentSession.startTime);
-            const now = new Date(); // Local machine time for display calc
-            const d = intervalToDuration({ start, end: now });
-            setDuration(`${d.hours || 0}h ${d.minutes || 0}m ${d.seconds || 0}s`);
-        }, 1000);
-
-        return () => clearInterval(interval);
-    }, [currentSession]);
+    }, [currentSession, todayEntries]);
 
     const handleCheckIn = async () => {
         if (!user) return;
@@ -107,33 +134,23 @@ export default function DashboardPage() {
                             )}
                         </div>
 
-                        <div className="text-sm text-gray-500">
-                            {currentSession
-                                ? `Started at ${formatToLocalTime(currentSession.startTime)}`
-                                : "You are currently not working."}
+                        <div className="text-sm text-gray-500 flex flex-col items-center gap-1">
+                            <div>
+                                {currentSession
+                                    ? `Started at ${formatToLocalTime(currentSession.startTime, user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)}`
+                                    : "You are currently not working."}
+                            </div>
+                            <div className="font-medium text-foreground">
+                                Worked today: {workedToday}
+                            </div>
                         </div>
                     </CardContent>
                 </Card>
 
-                {/* Info Card */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Quick Stats</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            <div className="flex items-center space-x-3">
-                                <div className="bg-blue-100 p-2 rounded-full text-blue-600"><Clock size={20} /></div>
-                                <div>
-                                    <div className="text-sm text-gray-500">Scheduled</div>
-                                    <div className="font-semibold">9:00 AM - 5:00 PM</div>
-                                </div>
-                            </div>
-                            {/* Placeholders for monthly stats later */}
-                        </div>
-                    </CardContent>
-                </Card>
+                {/* Calendar Widget replacement for Quick Stats */}
+                <CalendarWidget />
             </div>
         </div>
     );
 }
+
