@@ -2,8 +2,21 @@ import { supabase } from '@/lib/supabase';
 import { User } from '@/types';
 
 export const authService = {
-    // Sign up / Invite (starts with Admin Invite)
-    signUp: async (email: string, name: string) => {
+    // Self-Signup (Public)
+    signUp: async (email: string, password: string, name: string) => {
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { name }
+            }
+        });
+
+        return { data, error };
+    },
+
+    // Admin Invite User (Server-side API call)
+    inviteUser: async (email: string, name: string) => {
         try {
             const response = await fetch('/api/invite-user', {
                 method: 'POST',
@@ -33,11 +46,11 @@ export const authService = {
     // Send password reset email
     resetPasswordForEmail: async (email: string) => {
         return await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/reset` : undefined,
+            redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/set-password` : undefined,
         });
     },
 
-    // Update password (used in reset flow)
+    // Update password (used in reset flow and set-password flow)
     updatePassword: async (newPassword: string) => {
         return await supabase.auth.updateUser({
             password: newPassword,

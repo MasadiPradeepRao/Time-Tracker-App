@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 export default function SignupPage() {
     const { signup } = useAuth();
     const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -23,7 +24,7 @@ export default function SignupPage() {
         setError("");
         setLoading(true);
 
-        const { error: authError } = await signup(email, name);
+        const { error: authError } = await signup(email, password, name);
         setLoading(false);
 
         if (authError) {
@@ -41,7 +42,7 @@ export default function SignupPage() {
                     <CardHeader>
                         <CardTitle>Check your email</CardTitle>
                         <CardDescription>
-                            We've sent a link to <strong>{email}</strong> to finish your account setup.
+                            We've sent a link to <strong>{email}</strong> to confirm your account.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -60,7 +61,7 @@ export default function SignupPage() {
                 <CardHeader>
                     <CardTitle>Create Account</CardTitle>
                     <CardDescription>
-                        Enter your email to receive a verification link.
+                        Enter your details to create an account.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -85,6 +86,18 @@ export default function SignupPage() {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="password">Password</Label>
+                            <Input
+                                id="password"
+                                type="password"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                minLength={6}
                             />
                         </div>
 

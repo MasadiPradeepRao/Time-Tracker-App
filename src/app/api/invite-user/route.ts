@@ -11,6 +11,7 @@ export async function POST(request: Request) {
 
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
         const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || new URL(request.url).origin;
 
         if (!supabaseServiceKey) {
             console.error('SUPABASE_SERVICE_ROLE_KEY is missing');
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
         });
 
         const { data, error } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
-            redirectTo: `${new URL(request.url).origin}/auth/set-password`,
+            redirectTo: `${siteUrl}/auth/set-password`,
             data: { name }
         });
 
