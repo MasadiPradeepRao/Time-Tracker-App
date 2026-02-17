@@ -6,14 +6,23 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
 import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
 
-export function Sidebar() {
+export function SidebarContent() {
     const pathname = usePathname();
     const { user, logout } = useAuth();
+    const [mounted, setMounted] = useState(false);
+
+    // Hydration fix
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) return null;
 
     const links = [
         {
-            label: "Employees", // Was "Admin Dashboard"
+            label: "Employees",
             href: "/admin",
             icon: ShieldCheck,
             roles: ['admin'],
@@ -31,7 +40,7 @@ export function Sidebar() {
             roles: ['employee', 'admin'],
         },
         {
-            label: "On Duty", // Was "Employees"
+            label: "On Duty",
             href: "/admin/users",
             icon: Users,
             roles: ['admin'],
@@ -45,7 +54,7 @@ export function Sidebar() {
     ];
 
     return (
-        <div className="h-full w-64 bg-gray-900 text-white flex flex-col p-4">
+        <div className="h-full bg-gray-900 text-white flex flex-col p-4">
             <div className="mb-8">
                 <h1 className="text-xl font-bold">TimeTracker</h1>
                 <p className="text-xs text-gray-400">Welcome, {user?.name}</p>
@@ -79,6 +88,14 @@ export function Sidebar() {
                     Sign Out
                 </Button>
             </div>
+        </div>
+    );
+}
+
+export function Sidebar() {
+    return (
+        <div className="hidden md:flex h-full w-64 flex-col fixed inset-y-0 z-50">
+            <SidebarContent />
         </div>
     );
 }

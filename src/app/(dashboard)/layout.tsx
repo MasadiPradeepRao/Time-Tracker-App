@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { Sidebar } from "@/components/sidebar";
+import { MobileSidebar } from "@/components/mobile-sidebar";
 import { useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 
@@ -23,10 +24,18 @@ export default function DashboardLayout({
     }
 
     return (
-        <div className="flex h-screen overflow-hidden bg-gray-100">
-            <Sidebar />
-            <main className="flex-1 overflow-y-auto p-8">
-                {children}
+        <div className="h-full relative bg-gray-100 min-h-screen">
+            <div className="hidden md:flex h-full w-64 flex-col fixed inset-y-0 z-50">
+                <Sidebar />
+            </div>
+            <main className="md:pl-64 min-h-screen">
+                <div className="flex items-center p-4 md:hidden border-b bg-white">
+                    <MobileSidebar />
+                    <span className="ml-4 font-bold text-lg">TimeTracker</span>
+                </div>
+                <div className="p-8">
+                    {children}
+                </div>
             </main>
         </div>
     );
