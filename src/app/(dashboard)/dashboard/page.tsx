@@ -103,9 +103,12 @@ export default function DashboardPage() {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <div className="text-sm text-muted-foreground">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            <div className="flex flex-col gap-1">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Dashboard</h1>
+                    <div className="text-xs sm:text-sm text-muted-foreground">{new Date().toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div>
+                </div>
+                <p className="text-sm text-muted-foreground sm:hidden">Welcome back, <span className="font-semibold text-foreground">{user.name}</span></p>
             </div>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">

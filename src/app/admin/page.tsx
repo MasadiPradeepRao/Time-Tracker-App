@@ -56,36 +56,38 @@ export default function AdminPage() {
                     <CardTitle>All Employees</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Total Works ({format(new Date(), 'MMM yyyy')})</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((u) => (
-                                <TableRow key={u.id}>
-                                    <TableCell className="font-medium">{u.name}</TableCell>
-                                    <TableCell>{u.email}</TableCell>
-                                    <TableCell>
-                                        <span className={`px-2 py-1 rounded text-xs font-semibold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
-                                            {u.role.toUpperCase()}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="font-mono">{u.totalHours}</TableCell>
-                                    <TableCell className="text-right">
-                                        <Button variant="outline" size="sm" onClick={() => router.push(`/admin/users/${u.id}`)}>
-                                            View Details
-                                        </Button>
-                                    </TableCell>
+                    <div className="overflow-x-auto">
+                        <Table className="min-w-[600px]">
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="min-w-[130px]">Name</TableHead>
+                                    <TableHead className="min-w-[180px]">Email</TableHead>
+                                    <TableHead className="min-w-[80px]">Role</TableHead>
+                                    <TableHead className="min-w-[160px]">Total Works ({format(new Date(), 'MMM yyyy')})</TableHead>
+                                    <TableHead className="text-right min-w-[100px]">Actions</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {users.map((u) => (
+                                    <TableRow key={u.id}>
+                                        <TableCell className="font-medium">{u.name}</TableCell>
+                                        <TableCell className="max-w-[180px] truncate" title={u.email}>{u.email}</TableCell>
+                                        <TableCell>
+                                            <span className={`px-2 py-1 rounded text-xs font-semibold ${u.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                {u.role.toUpperCase()}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="font-mono">{u.totalHours}</TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="outline" size="sm" onClick={() => router.push(`/admin/users/${u.id}`)}>
+                                                View Details
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>

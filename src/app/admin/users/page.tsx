@@ -42,40 +42,42 @@ export default function AdminUsersPage() {
                     <CardDescription>View all registered users.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[100px]">Avatar</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Email</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead className="text-right">Status</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((user) => (
-                                <TableRow key={user.id}>
-                                    <TableCell>
-                                        <Avatar>
-                                            <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
-                                        </Avatar>
-                                    </TableCell>
-                                    <TableCell className="font-medium">{user.name}</TableCell>
-                                    <TableCell>{user.email}</TableCell>
-                                    <TableCell>
-                                        <Badge variant={user.role === 'admin' ? "destructive" : "default"}>
-                                            {user.role}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right">
-                                        <Badge variant="default" className={user.isActive ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 hover:bg-gray-500"}>
-                                            {user.isActive ? "Active" : "Offline"}
-                                        </Badge>
-                                    </TableCell>
+                    <div className="overflow-x-auto">
+                        <Table className="min-w-[580px]">
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="w-[80px]">Avatar</TableHead>
+                                    <TableHead className="min-w-[130px]">Name</TableHead>
+                                    <TableHead className="min-w-[160px]">Email</TableHead>
+                                    <TableHead className="min-w-[80px]">Role</TableHead>
+                                    <TableHead className="text-right min-w-[90px]">Status</TableHead>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHeader>
+                            <TableBody>
+                                {users.map((user) => (
+                                    <TableRow key={user.id}>
+                                        <TableCell>
+                                            <Avatar>
+                                                <AvatarFallback>{user.name.substring(0, 2).toUpperCase()}</AvatarFallback>
+                                            </Avatar>
+                                        </TableCell>
+                                        <TableCell className="font-medium">{user.name}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
+                                        <TableCell>
+                                            <Badge variant={user.role === 'admin' ? "destructive" : "default"}>
+                                                {user.role}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Badge variant="default" className={user.isActive ? "bg-green-500 hover:bg-green-600" : "bg-gray-400 hover:bg-gray-500"}>
+                                                {user.isActive ? "Active" : "Offline"}
+                                            </Badge>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>

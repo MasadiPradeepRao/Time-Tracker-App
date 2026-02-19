@@ -29,11 +29,14 @@ export default function DashboardLayout({
                 <Sidebar />
             </div>
             <main className="md:pl-64 min-h-screen">
-                <div className="flex items-center p-4 md:hidden border-b bg-white">
-                    <MobileSidebar />
-                    <span className="ml-4 font-bold text-lg">TimeTracker</span>
+                <div className="flex items-center justify-between p-4 md:hidden border-b bg-white">
+                    <div className="flex items-center gap-3">
+                        <MobileSidebar />
+                        <span className="font-bold text-lg">TimeTracker</span>
+                    </div>
+                    <span className="text-xs text-gray-500 pr-1">Welcome, {user.name}</span>
                 </div>
-                <div className="p-8">
+                <div className="p-4 md:p-8">
                     {children}
                 </div>
             </main>

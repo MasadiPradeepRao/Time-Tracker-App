@@ -74,32 +74,34 @@ export default function AdminReportsPage() {
                             <CardDescription>View and manage time entries for all employees.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Employee</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Start</TableHead>
-                                        <TableHead>End</TableHead>
-                                        <TableHead>Duration</TableHead>
-                                        <TableHead>Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {entries.map(entry => (
-                                        <TableRow key={entry.id}>
-                                            <TableCell className="font-medium">{userMap[entry.userId] || entry.userId}</TableCell>
-                                            <TableCell>{formatToLocalDate(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
-                                            <TableCell>{formatToLocalTime(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
-                                            <TableCell>{entry.endTime ? formatToLocalTime(entry.endTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : "Active"}</TableCell>
-                                            <TableCell>{calculateDuration(entry.startTime, entry.endTime)}</TableCell>
-                                            <TableCell>
-                                                <EditSessionDialog entry={entry} onSuccess={refreshData} />
-                                            </TableCell>
+                            <div className="overflow-x-auto">
+                                <Table className="min-w-[700px]">
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="min-w-[130px]">Employee</TableHead>
+                                            <TableHead className="min-w-[100px]">Date</TableHead>
+                                            <TableHead className="min-w-[80px]">Start</TableHead>
+                                            <TableHead className="min-w-[80px]">End</TableHead>
+                                            <TableHead className="min-w-[90px]">Duration</TableHead>
+                                            <TableHead className="min-w-[80px]">Actions</TableHead>
                                         </TableRow>
-                                    ))}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {entries.map(entry => (
+                                            <TableRow key={entry.id}>
+                                                <TableCell className="font-medium">{userMap[entry.userId] || entry.userId}</TableCell>
+                                                <TableCell>{formatToLocalDate(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
+                                                <TableCell>{formatToLocalTime(entry.startTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone)}</TableCell>
+                                                <TableCell>{entry.endTime ? formatToLocalTime(entry.endTime, userTimezoneMap[entry.userId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : "Active"}</TableCell>
+                                                <TableCell>{calculateDuration(entry.startTime, entry.endTime)}</TableCell>
+                                                <TableCell>
+                                                    <EditSessionDialog entry={entry} onSuccess={refreshData} />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -111,37 +113,39 @@ export default function AdminReportsPage() {
                             <CardDescription>Immutable record of all administrative actions.</CardDescription>
                         </CardHeader>
                         <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead>Admin</TableHead>
-                                        <TableHead>Action</TableHead>
-                                        <TableHead>Target Entry</TableHead>
-                                        <TableHead>Changes</TableHead>
-                                        <TableHead>Timestamp</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {logs.map(log => (
-                                        <TableRow key={log.id}>
-                                            <TableCell className="font-medium">{userMap[log.adminId] || log.adminId}</TableCell>
-                                            <TableCell><span className="font-mono text-xs bg-slate-100 p-1 rounded">{log.action}</span></TableCell>
-                                            <TableCell className="text-xs text-gray-500">{log.targetEntryId}</TableCell>
-                                            <TableCell>
-                                                <div className="text-xs space-y-1">
-                                                    {log.changes.map((c, i) => (
-                                                        <div key={i}>
-                                                            <span className="font-semibold">{c.field}:</span> {typeof c.before === 'string' ? formatToLocalTime(c.before, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.before} → {typeof c.after === 'string' ? formatToLocalTime(c.after, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.after}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-gray-500 text-sm">{new Date(log.timestamp).toLocaleString()}</TableCell>
+                            <div className="overflow-x-auto">
+                                <Table className="min-w-[700px]">
+                                    <TableHeader>
+                                        <TableRow>
+                                            <TableHead className="min-w-[110px]">Admin</TableHead>
+                                            <TableHead className="min-w-[100px]">Action</TableHead>
+                                            <TableHead className="min-w-[120px]">Target Entry</TableHead>
+                                            <TableHead className="min-w-[200px]">Changes</TableHead>
+                                            <TableHead className="min-w-[140px]">Timestamp</TableHead>
                                         </TableRow>
-                                    ))}
-                                    {logs.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-gray-500">No audit logs found.</TableCell></TableRow>}
-                                </TableBody>
-                            </Table>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {logs.map(log => (
+                                            <TableRow key={log.id}>
+                                                <TableCell className="font-medium">{userMap[log.adminId] || log.adminId}</TableCell>
+                                                <TableCell><span className="font-mono text-xs bg-slate-100 p-1 rounded">{log.action}</span></TableCell>
+                                                <TableCell className="text-xs text-gray-500">{log.targetEntryId}</TableCell>
+                                                <TableCell>
+                                                    <div className="text-xs space-y-1">
+                                                        {log.changes.map((c, i) => (
+                                                            <div key={i}>
+                                                                <span className="font-semibold">{c.field}:</span> {typeof c.before === 'string' ? formatToLocalTime(c.before, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.before} → {typeof c.after === 'string' ? formatToLocalTime(c.after, userTimezoneMap[log.adminId] || Intl.DateTimeFormat().resolvedOptions().timeZone) : c.after}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="text-gray-500 text-sm">{new Date(log.timestamp).toLocaleString()}</TableCell>
+                                            </TableRow>
+                                        ))}
+                                        {logs.length === 0 && <TableRow><TableCell colSpan={5} className="text-center text-gray-500">No audit logs found.</TableCell></TableRow>}
+                                    </TableBody>
+                                </Table>
+                            </div>
                         </CardContent>
                     </Card>
                 </TabsContent>
