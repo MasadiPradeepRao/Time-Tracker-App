@@ -1,6 +1,12 @@
 import { supabase } from '@/lib/supabase';
 import { User } from '@/types';
 
+const getSiteUrl = () => {
+    if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+    if (typeof window !== 'undefined') return window.location.origin;
+    return '';
+};
+
 export const authService = {
     // Self-Signup (Public)
     signUp: async (email: string, password: string, name: string) => {
@@ -8,7 +14,8 @@ export const authService = {
             email,
             password,
             options: {
-                data: { name }
+                data: { name },
+                emailRedirectTo: `${getSiteUrl()}/auth/callback`,
             }
         });
 
@@ -46,7 +53,7 @@ export const authService = {
     // Send password reset email
     resetPasswordForEmail: async (email: string) => {
         return await supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/auth/set-password` : undefined,
+            redirectTo: `${getSiteUrl()}/auth/callback?next=/auth/set-password`,
         });
     },
 
