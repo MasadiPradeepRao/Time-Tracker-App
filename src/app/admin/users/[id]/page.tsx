@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { getAdminUserHistory } from "../../actions";
 import { TimeEntry } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,13 +11,14 @@ import { ArrowLeft } from "lucide-react";
 import { formatToLocalTime, formatToLocalDate, calculateDuration } from "@/lib/date-utils";
 
 interface Props {
-    params: { id: string };
+    params: Promise<{ id: string }>;
 }
 
 export default function AdminUserPage({ params }: Props) {
-    const { id } = params;
+    const { id } = use(params);
     const [entries, setEntries] = useState<TimeEntry[]>([]);
     const [userEmail, setUserEmail] = useState("");
+    const [userName, setUserName] = useState("");
     const [userTimezone, setUserTimezone] = useState("");
     const [loading, setLoading] = useState(true);
     const router = useRouter();
@@ -37,6 +38,7 @@ export default function AdminUserPage({ params }: Props) {
 
                 if (profile) {
                     setUserEmail(profile.email);
+                    setUserName(profile.name || "");
                     setUserTimezone(profile.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone);
                 }
 
@@ -70,37 +72,43 @@ export default function AdminUserPage({ params }: Props) {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Time Logs for <span className="text-primary">{userEmail || "..."}</span></CardTitle>
+                    <CardTitle>Time Logs for <span className="text-primary">{userName || userEmail || "..."}</span></CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Check In</TableHead>
-                                <TableHead>Check Out</TableHead>
-                                <TableHead>Duration</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {entries.length === 0 ? (
+                    <div className="overflow-x-auto">
+                        <Table className="min-w-[600px]">
+                            <TableHeader>
                                 <TableRow>
-                                    <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
-                                        No entries found.
-                                    </TableCell>
+                                    <TableHead className="min-w-[120px]">Date</TableHead>
+                                    <TableHead className="min-w-[120px]">Check In</TableHead>
+                                    <TableHead className="min-w-[120px]">Check Out</TableHead>
+                                    <TableHead className="min-w-[100px]">Duration</TableHead>
                                 </TableRow>
-                            ) : (
-                                entries.map(e => (
-                                    <TableRow key={e.id}>
-                                        <TableCell>{formatToLocalDate(e.startTime, userTimezone)}</TableCell>
-                                        <TableCell>{formatToLocalTime(e.startTime, userTimezone)}</TableCell>
-                                        <TableCell>{e.endTime ? formatToLocalTime(e.endTime, userTimezone) : <span className="text-green-600 font-medium">Active</span>}</TableCell>
-                                        <TableCell className="font-mono text-sm">{calculateDuration(e.startTime, e.endTime)}</TableCell>
+                            </TableHeader>
+                            <TableBody>
+                                {loading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center h-24">Loading logs...</TableCell>
                                     </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
+                                ) : entries.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} className="text-center text-muted-foreground h-24">
+                                            No entries found.
+                                        </TableCell>
+                                    </TableRow>
+                                ) : (
+                                    entries.map(e => (
+                                        <TableRow key={e.id}>
+                                            <TableCell>{formatToLocalDate(e.startTime, userTimezone)}</TableCell>
+                                            <TableCell>{formatToLocalTime(e.startTime, userTimezone)}</TableCell>
+                                            <TableCell>{e.endTime ? formatToLocalTime(e.endTime, userTimezone) : <span className="text-green-600 font-medium">Active</span>}</TableCell>
+                                            <TableCell className="font-mono text-sm">{calculateDuration(e.startTime, e.endTime)}</TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </CardContent>
             </Card>
         </div>

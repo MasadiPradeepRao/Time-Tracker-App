@@ -225,7 +225,7 @@ export async function getAdminUserHistory(userId: string) {
         // 1. Get Profile
         const { data: profile, error: profileError } = await adminClient
             .from('profiles')
-            .select('email, timezone')
+            .select('name, email, timezone')
             .eq('id', userId)
             .single();
 
