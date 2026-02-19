@@ -10,16 +10,22 @@ const getSiteUrl = () => {
 export const authService = {
     // Self-Signup (Public)
     signUp: async (email: string, password: string, name: string) => {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { name },
-                emailRedirectTo: `${getSiteUrl()}/auth/callback`,
-            }
-        });
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { name },
+                    // Reverting to default redirect (Site URL from Dashboard)
+                    // emailRedirectTo: `${getSiteUrl()}/auth/callback`,
+                }
+            });
 
-        return { data, error };
+            return { data, error };
+        } catch (err: any) {
+            console.error("Signup error catch:", err);
+            return { data: null, error: err };
+        }
     },
 
     // Admin Invite User (Server-side API call)
