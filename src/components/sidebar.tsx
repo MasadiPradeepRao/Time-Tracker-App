@@ -57,7 +57,9 @@ export function SidebarContent() {
     return (
         <div className="h-full bg-gray-900 text-white flex flex-col p-4">
             <div className="mb-8">
-                <Logo textSize="text-2xl" iconSize={28} />
+                <Link href="/">
+                    <Logo textSize="text-2xl" iconSize={28} className="cursor-pointer hover:opacity-80 transition-opacity" />
+                </Link>
                 <p className="text-xs text-gray-400">Welcome, {user?.name}</p>
             </div>
 

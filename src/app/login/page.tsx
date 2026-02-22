@@ -11,6 +11,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { Logo } from "@/components/logo";
+import { AuthCarousel } from "@/components/auth/auth-carousel";
+import { AuthBackground } from "@/components/auth/auth-background";
+import { motion } from "framer-motion";
 
 export default function LoginPage() {
     const { login, user, loading: authLoading } = useAuth();
@@ -57,64 +60,96 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-gray-50">
-            <Card className="w-[400px] shadow-lg">
-                <CardHeader className="flex flex-col items-center">
-                    <Logo textSize="text-3xl" iconSize={36} className="mb-2" />
-                    <CardTitle>Welcome to Hourlog</CardTitle>
-                    <CardDescription>
-                        Enter your email and password to sign in.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                placeholder="you@example.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
-                            />
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="password">Password</Label>
-                            <Input
-                                id="password"
-                                type="password"
-                                placeholder="••••••••"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
-                            />
-                        </div>
+        <div className="min-h-screen w-full flex bg-white relative overflow-hidden">
+            {/* Desktop Background Pattern */}
+            <AuthBackground />
 
-                        {error && (
-                            <div className="text-sm text-red-600 bg-red-50 border border-red-200 rounded p-2">
-                                {error}
-                            </div>
-                        )}
+            {/* Mobile Background Carousel */}
+            <div className="absolute inset-0 z-0 lg:hidden">
+                <AuthCarousel isMobile />
+            </div>
 
-                        <Button type="submit" className="w-full" disabled={loading}>
-                            {loading ? "Signing in..." : "Log In"}
-                        </Button>
-                    </form>
+            <div className="relative z-10 w-full max-w-6xl mx-auto lg:grid lg:grid-cols-2 items-center min-h-screen">
+                {/* Desktop Carousel Column */}
+                <div className="hidden lg:flex items-center justify-center p-8">
+                    <AuthCarousel className="w-full max-w-[500px] aspect-square shadow-2xl" />
+                </div>
 
-                    <div className="mt-4 space-y-2 text-center text-sm">
-                        <Link href="/forgot-password" className="text-primary hover:underline block">
-                            Forgot password?
-                        </Link>
-                        <div className="text-muted-foreground">
-                            Don't have an account?{" "}
-                            <Link href="/signup" className="text-primary hover:underline">
-                                Sign up
+                {/* Form Column */}
+                <div className="flex flex-col items-center justify-center p-6 md:p-12 lg:p-24 relative">
+                    <Card className="w-full max-w-[420px] shadow-2xl border-none lg:shadow-none bg-white/90 backdrop-blur-sm lg:bg-transparent">
+                        <CardHeader className="flex flex-col items-center pb-8">
+                            <Link href="/">
+                                <Logo textSize="text-3xl" iconSize={36} className="mb-6 cursor-pointer hover:opacity-80 transition-opacity" />
                             </Link>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
+                            <CardTitle className="text-2xl font-bold tracking-tight">Welcome to Hourlog</CardTitle>
+                            <CardDescription className="text-gray-500 text-center mt-2">
+                                Enter your email and password to sign in to your dashboard.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <form onSubmit={handleLogin} className="space-y-6">
+                                <div className="space-y-2">
+                                    <Label htmlFor="email" className="font-semibold text-gray-700">Email</Label>
+                                    <Input
+                                        id="email"
+                                        type="email"
+                                        placeholder="name@company.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        className="h-12 border-gray-200 focus:ring-blue-500 rounded-xl"
+                                        required
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                        <Label htmlFor="password" title="password" className="font-semibold text-gray-700">Password</Label>
+                                        <Link href="/forgot-password" title="forgot-password" className="text-xs font-medium text-blue-600 hover:underline">
+                                            Forgot password?
+                                        </Link>
+                                    </div>
+                                    <Input
+                                        id="password"
+                                        type="password"
+                                        placeholder="••••••••"
+                                        value={password}
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        className="h-12 border-gray-200 focus:ring-blue-500 rounded-xl"
+                                        required
+                                    />
+                                </div>
+
+                                {error && (
+                                    <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl p-4 flex items-center gap-2"
+                                    >
+                                        <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
+                                        {error}
+                                    </motion.div>
+                                )}
+
+                                <Button type="submit" className="w-full h-12 bg-gray-900 hover:bg-gray-800 text-white font-bold rounded-xl shadow-lg transition-all active:scale-[0.98]" disabled={loading}>
+                                    {loading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                            Signing in...
+                                        </div>
+                                    ) : "Sign In"}
+                                </Button>
+                            </form>
+
+                            <div className="mt-8 text-center text-sm">
+                                <span className="text-gray-500">Don't have an account? </span>
+                                <Link href="/signup" className="font-bold text-gray-900 hover:text-blue-600 transition-colors">
+                                    Create account
+                                </Link>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
         </div>
     );
 }
