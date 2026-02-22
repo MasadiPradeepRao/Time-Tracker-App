@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Logo } from "@/components/logo";
 
 export default function LoginPage() {
     const { login, user, loading: authLoading } = useAuth();
@@ -58,8 +59,9 @@ export default function LoginPage() {
     return (
         <div className="h-screen flex items-center justify-center bg-gray-50">
             <Card className="w-[400px] shadow-lg">
-                <CardHeader>
-                    <CardTitle>Time Tracker Login</CardTitle>
+                <CardHeader className="flex flex-col items-center">
+                    <Logo textSize="text-3xl" iconSize={36} className="mb-2" />
+                    <CardTitle>Welcome to Hourlog</CardTitle>
                     <CardDescription>
                         Enter your email and password to sign in.
                     </CardDescription>

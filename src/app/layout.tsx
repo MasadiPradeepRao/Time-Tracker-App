@@ -7,8 +7,8 @@ import { Toaster } from "@/components/ui/sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Time Tracker",
-  description: "Employee Time Tracking Application",
+  title: "Hourlog",
+  description: "Hourlog - Employee Time Tracking Application",
 };
 
 export default function RootLayout({

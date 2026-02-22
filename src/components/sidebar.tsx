@@ -7,6 +7,7 @@ import { useAuth } from "@/components/auth-provider";
 import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
+import { Logo } from "@/components/logo";
 
 export function SidebarContent() {
     const pathname = usePathname();
@@ -56,7 +57,7 @@ export function SidebarContent() {
     return (
         <div className="h-full bg-gray-900 text-white flex flex-col p-4">
             <div className="mb-8">
-                <h1 className="text-xl font-bold">TimeTracker</h1>
+                <Logo textSize="text-2xl" iconSize={28} />
                 <p className="text-xs text-gray-400">Welcome, {user?.name}</p>
             </div>
 

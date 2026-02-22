@@ -5,6 +5,7 @@ import { useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { MobileSidebar } from "@/components/mobile-sidebar";
+import { Logo } from "@/components/logo";
 
 export default function AdminLayout({
     children,
@@ -35,7 +36,7 @@ export default function AdminLayout({
             <div className="flex items-center justify-between p-4 md:hidden border-b bg-white">
                 <div className="flex items-center gap-3">
                     <MobileSidebar />
-                    <span className="font-bold text-lg">TimeTracker</span>
+                    <Logo textSize="text-lg" iconSize={20} />
                 </div>
                 <span className="text-xs text-gray-500 pr-1">Welcome, {user.name}</span>
             </div>

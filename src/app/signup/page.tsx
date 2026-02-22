@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Logo } from "@/components/logo";
 
 export default function SignupPage() {
     const { signup } = useAuth();
@@ -58,7 +59,8 @@ export default function SignupPage() {
     return (
         <div className="h-screen flex items-center justify-center bg-gray-50">
             <Card className="w-[400px] shadow-lg">
-                <CardHeader>
+                <CardHeader className="flex flex-col items-center">
+                    <Logo textSize="text-3xl" iconSize={36} className="mb-2" />
                     <CardTitle>Create Account</CardTitle>
                     <CardDescription>
                         Enter your details to create an account.
