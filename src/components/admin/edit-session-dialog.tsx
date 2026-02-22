@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { TimeEntry } from "@/types";
 import { timeService } from "@/services/time-service";
+import { auditService } from "@/services/audit-service";
 import { useAuth } from "@/components/auth-provider";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import { updateTimeEntryAction } from "@/app/admin/actions";
 
 interface EditSessionDialogProps {
     entry: TimeEntry;
@@ -48,7 +50,19 @@ export function EditSessionDialog({ entry, onSuccess }: EditSessionDialogProps) 
             if (newEnd !== entry.endTime) updates.endTime = newEnd;
 
             if (Object.keys(updates).length > 0) {
-                await timeService.updateEntry(user.id, entry.id, updates);
+                const { error } = await updateTimeEntryAction(entry.id, updates);
+
+                if (error) throw new Error(error);
+
+                // Audit Log (Client-side localStorage as before)
+                await auditService.logChange(user.id, entry.id, 'UPDATE',
+                    Object.entries(updates).map(([field, after]) => ({
+                        field,
+                        before: (entry as any)[field],
+                        after
+                    }))
+                );
+
                 toast.success("Session updated (Audit Logged)");
                 onSuccess();
                 setOpen(false);

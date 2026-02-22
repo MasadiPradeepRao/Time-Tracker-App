@@ -246,3 +246,28 @@ export async function getAdminUserHistory(userId: string) {
         return { data: null, error: error.message };
     }
 }
+
+export async function updateTimeEntryAction(entryId: string, updates: { startTime?: string; endTime?: string | null }) {
+    try {
+        await checkAdminAuth();
+        const adminClient = getSupabaseAdmin();
+
+        const dbUpdates: any = {};
+        if (updates.startTime) dbUpdates.start_time = updates.startTime;
+        if (updates.endTime !== undefined) dbUpdates.end_time = updates.endTime;
+
+        const { data, error } = await adminClient
+            .from('time_entries')
+            .update(dbUpdates)
+            .eq('id', entryId)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return { data, error: null };
+    } catch (error: any) {
+        console.error("Admin update error:", error);
+        return { data: null, error: error.message };
+    }
+}
