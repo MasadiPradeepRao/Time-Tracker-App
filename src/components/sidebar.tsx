@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
-import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 
@@ -82,7 +82,13 @@ export function SidebarContent() {
                 })}
             </nav>
 
-            <div className="pt-4 border-t border-gray-800">
+            <div className="pt-4 border-t border-gray-800 space-y-2">
+                <Link href="/account">
+                    <Button variant="ghost" className="w-full justify-start text-gray-400 hover:text-white hover:bg-gray-800">
+                        <User size={20} className="mr-2" />
+                        My Account
+                    </Button>
+                </Link>
                 <Button variant="ghost" className="w-full justify-start text-red-400 hover:text-red-300 hover:bg-gray-800" onClick={logout}>
                     <LogOut size={20} className="mr-2" />
                     Sign Out
