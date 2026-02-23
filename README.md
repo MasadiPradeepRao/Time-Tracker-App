@@ -1,4 +1,4 @@
-# 🕒 TimeTracker: Enterprise-Grade Workforce Management
+# 🕒 Hourlog: Enterprise-Grade Workforce Management
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Database-blueviolet?style=for-the-badge&logo=supabase)](https://supabase.com/)
@@ -60,32 +60,7 @@ Used Next.js Server Components to fetch initial data, reducing the bundle size s
 
 ---
 
-## 🛠️ Installation & Setup
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-username/time-tracker-app.git
-   cd time-tracker-app
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Environment Variables**:
-   Create a `.env.local` file and add your Supabase credentials:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=your_project_url
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-   ```
-
-4. **Run the development server**:
-   ```bash
-   npm run dev
-   ```
-
----
 
 ## 📈 Roadmap & Future Insights
 - [ ] Integration with Slack/Discord for instant notifications.
