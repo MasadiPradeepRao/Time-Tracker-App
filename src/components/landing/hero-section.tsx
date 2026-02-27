@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { EmployeeMockup } from "./employee-mockup";
+import { InstallApp } from "@/components/install-app";
 
 export function HeroSection() {
     return (
@@ -66,6 +67,9 @@ export function HeroSection() {
                                 Live Demo
                             </Button>
                         </Link>
+                    </div>
+                    <div className="mt-8 sm:hidden flex justify-center">
+                        <InstallApp />
                     </div>
                 </motion.div>
 
