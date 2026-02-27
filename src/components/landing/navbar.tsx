@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { User, LogOut, LayoutDashboard } from "lucide-react";
+import { InstallApp } from "@/components/install-app";
 
 export function Navbar() {
     const [scrolled, setScrolled] = useState(false);
@@ -58,6 +59,7 @@ export function Navbar() {
                     <Link href="#features" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Features</Link>
                     <Link href="#dashboards" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Dashboards</Link>
                     <Link href="#calendar" className="text-gray-600 hover:text-gray-900 font-medium transition-colors">Calendar</Link>
+                    <InstallApp />
                 </nav>
 
                 <div className="flex items-center gap-4">
