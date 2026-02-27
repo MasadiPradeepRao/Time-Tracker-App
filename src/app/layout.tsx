@@ -4,6 +4,7 @@ import "./globals.css";
 import { AuthProvider } from "@/components/auth-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import OneSignalInit from "@/components/onesignal-init";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,7 @@ export default function RootLayout({
           {children}
           <Toaster />
           <ServiceWorkerRegister />
+          <OneSignalInit />
         </AuthProvider>
       </body>
     </html>
