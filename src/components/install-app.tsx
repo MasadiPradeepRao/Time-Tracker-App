@@ -22,10 +22,13 @@ export function InstallApp() {
 
         const isInstalled = checkStandalone();
 
-        // Detect iOS
+        // Detect iOS (iPhone, iPad, iPod) and exclude Mac desktops
         const detectIOS = () => {
-            const userAgent = window.navigator.userAgent.toLowerCase();
-            return /iphone|ipad|ipod/.test(userAgent);
+            if (typeof window === 'undefined') return false;
+            const ua = window.navigator.userAgent;
+            const isIOS = /iPhone|iPad|iPod/.test(ua);
+            const isiPadOS = (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+            return isIOS || isiPadOS;
         };
 
         const ios = detectIOS();
@@ -76,14 +79,19 @@ export function InstallApp() {
                         <Download className="w-5 h-5 text-blue-600" />
                         Install Hourlog App
                     </p>
-                    <div className="space-y-3 text-sm text-blue-800/90">
+                    <p className="text-xs text-blue-700/80 mb-3 font-medium">To install this app on iPhone:</p>
+                    <div className="space-y-2.5 text-sm text-blue-800/90">
                         <div className="flex items-start gap-3 bg-white/50 p-2 rounded-lg">
                             <span className="flex items-center justify-center min-w-[20px] h-5 rounded-full bg-blue-600 text-white text-[12px] font-black">1</span>
-                            <span>Tap the <strong>Share</strong> button <Share className="inline w-4 h-4 -mt-1 ml-1" /></span>
+                            <span>Open in <strong>Safari</strong></span>
                         </div>
                         <div className="flex items-start gap-3 bg-white/50 p-2 rounded-lg">
                             <span className="flex items-center justify-center min-w-[20px] h-5 rounded-full bg-blue-600 text-white text-[12px] font-black">2</span>
-                            <span>Scroll down and select <strong>'Add to Home Screen'</strong> <PlusSquare className="inline w-4 h-4 -mt-1 ml-1" /></span>
+                            <span>Tap <strong>Share</strong> button <Share className="inline w-4 h-4 -mt-1 ml-1" /></span>
+                        </div>
+                        <div className="flex items-start gap-3 bg-white/50 p-2 rounded-lg">
+                            <span className="flex items-center justify-center min-w-[20px] h-5 rounded-full bg-blue-600 text-white text-[12px] font-black">3</span>
+                            <span>Tap <strong>'Add to Home Screen'</strong> <PlusSquare className="inline w-4 h-4 -mt-1 ml-1" /></span>
                         </div>
                     </div>
                 </div>

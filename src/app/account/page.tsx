@@ -19,8 +19,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger
 } from "@/components/ui/alert-dialog";
-import { Loader2, Trash2, Bell } from "lucide-react";
-import ReminderSettings from "@/components/account/reminder-settings";
+import { Loader2, Trash2 } from "lucide-react";
 
 export default function AccountPage() {
     const { user, logout } = useAuth();
@@ -141,7 +140,6 @@ export default function AccountPage() {
                 </CardFooter>
             </Card>
 
-            <ReminderSettings />
         </div>
     );
 }

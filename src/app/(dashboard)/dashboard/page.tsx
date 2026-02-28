@@ -22,11 +22,10 @@ export default function DashboardPage() {
 
     const fetchData = async () => {
         if (!user) return;
-        const timezone = user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         try {
             const [session, today] = await Promise.all([
                 timeService.getCurrentSession(user.id),
-                timeService.getTodayEntries(user.id, timezone)
+                timeService.getTodayEntries(user.id)
             ]);
             setCurrentSession(session);
             setTodayEntries(today);
@@ -140,7 +139,7 @@ export default function DashboardPage() {
                         <div className="text-sm text-gray-500 flex flex-col items-center gap-1">
                             <div>
                                 {currentSession
-                                    ? `Started at ${formatToLocalTime(currentSession.startTime, user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone)}`
+                                    ? `Started at ${formatToLocalTime(currentSession.startTime)}`
                                     : "You are currently not working."}
                             </div>
                             <div className="font-medium text-foreground">

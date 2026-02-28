@@ -90,7 +90,7 @@ export const authService = {
                     email: email,
                     name: name || email.split('@')[0],
                     // role: 'employee', // REMOVED: Never set role from client
-                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timezone: 'Europe/Stockholm',
                 });
 
             return !error;

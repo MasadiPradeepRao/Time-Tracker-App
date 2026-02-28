@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
-import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/logo";
@@ -32,6 +32,18 @@ export function SidebarContent() {
             label: user?.role === 'admin' ? "Admin Dashboard" : "Dashboard",
             href: "/dashboard",
             icon: LayoutDashboard,
+            roles: ['employee', 'admin'],
+        },
+        {
+            label: "My Calendar",
+            href: "/calendar",
+            icon: Calendar,
+            roles: ['employee', 'admin'],
+        },
+        {
+            label: "Reminders",
+            href: "/reminders",
+            icon: Bell,
             roles: ['employee', 'admin'],
         },
         {

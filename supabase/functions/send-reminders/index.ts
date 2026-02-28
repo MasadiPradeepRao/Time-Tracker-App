@@ -29,8 +29,9 @@ serve(async (req) => {
         for (const reminder of reminders || []) {
             if (!reminder.enabled) continue;
 
-            const userLocalTime = now.toLocaleTimeString("sv-SE", {
-                timeZone: reminder.timezone,
+            const STOCKHOLM_TZ = "Europe/Stockholm";
+            const stockholmTime = new Date().toLocaleString("en-US", {
+                timeZone: STOCKHOLM_TZ,
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: false,
@@ -38,11 +39,11 @@ serve(async (req) => {
 
             const reminderTime = reminder.reminder_time.slice(0, 5);
 
-            console.log("User timezone:", reminder.timezone);
-            console.log("User local time:", userLocalTime);
+            console.log("Fixed timezone:", STOCKHOLM_TZ);
+            console.log("Stockholm current time:", stockholmTime);
             console.log("Reminder time:", reminderTime);
 
-            if (userLocalTime !== reminderTime) continue;
+            if (stockholmTime !== reminderTime) continue;
 
             console.log(`[${now.toISOString()}] Match found! Sending notification to user ${reminder.user_id}`);
 

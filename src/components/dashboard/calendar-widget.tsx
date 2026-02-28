@@ -17,14 +17,12 @@ export function CalendarWidget() {
 
     useEffect(() => {
         if (!user) return;
-        const timezone = user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        timeService.getMonthEntries(user.id, month, timezone).then(setEntries);
+        timeService.getMonthEntries(user.id, month).then(setEntries);
     }, [user, month]);
 
     // Aggregate entries by day
-    const timezone = user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const dailyWork = entries.reduce((acc, entry) => {
-        const dayKey = getLocalDayKey(entry.startTime, timezone);
+        const dayKey = getLocalDayKey(entry.startTime);
         if (!acc[dayKey]) acc[dayKey] = [];
         acc[dayKey].push(entry);
         return acc;
@@ -105,9 +103,9 @@ export function CalendarWidget() {
                             selectedDayEntries.map(entry => (
                                 <div key={entry.id} className="flex justify-between items-center p-2 bg-gray-50 rounded border text-xs">
                                     <div className="flex flex-col">
-                                        <span className="font-medium">{formatToLocalTime(entry.startTime, timezone)}</span>
+                                        <span className="font-medium">{formatToLocalTime(entry.startTime)}</span>
                                         <span className="text-gray-400 text-[10px]">to</span>
-                                        <span className="font-medium">{entry.endTime ? formatToLocalTime(entry.endTime, timezone) : "Active"}</span>
+                                        <span className="font-medium">{entry.endTime ? formatToLocalTime(entry.endTime) : "Active"}</span>
                                     </div>
                                     <div className="font-mono text-gray-600">
                                         {calculateDuration(entry.startTime, entry.endTime)}

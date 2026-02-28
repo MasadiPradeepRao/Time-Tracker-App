@@ -19,8 +19,7 @@ export default function SummaryPage() {
     useEffect(() => {
         if (!user) return;
         setLoading(true);
-        const timezone = user.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-        timeService.getMonthEntries(user.id, month, timezone)
+        timeService.getMonthEntries(user.id, month)
             .then((data) => {
                 // Filter out active sessions for historical summary
                 setEntries(data.filter(e => e.endTime));
@@ -43,9 +42,9 @@ export default function SummaryPage() {
     // Daily breakdown
     const timezone = user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
     const dailyMap = entries.reduce((acc, entry) => {
-        // Use helper to ensure grouping happens in USER'S current timezone
+        // Use helper to ensure grouping happens in fixed timezone
         const { getLocalDayKey } = require("@/lib/date-utils");
-        const dateKey = getLocalDayKey(entry.startTime, timezone);
+        const dateKey = getLocalDayKey(entry.startTime);
 
         if (!acc[dateKey]) acc[dateKey] = 0;
         if (entry.endTime) {

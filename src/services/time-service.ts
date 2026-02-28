@@ -74,14 +74,14 @@ export const timeService = {
         return data ? mapEntry(data) : null;
     },
 
-    getTodayEntries: async (userId: string, timezone: string): Promise<TimeEntry[]> => {
+    getTodayEntries: async (userId: string): Promise<TimeEntry[]> => {
         // Use helper to get UTC range for "Local Today"
         // This ensures if it's 11pm Local, we look for entries within that Local day, 
         // regardless of what UTC day it is.
         const { getStartOfDayInUTC, getEndOfDayInUTC } = await import('@/lib/date-utils');
 
-        const start = getStartOfDayInUTC(new Date(), timezone);
-        const end = getEndOfDayInUTC(new Date(), timezone);
+        const start = getStartOfDayInUTC(new Date());
+        const end = getEndOfDayInUTC(new Date());
 
         const { data } = await supabase
             .from('time_entries')
@@ -94,13 +94,13 @@ export const timeService = {
         return (data || []).map(mapEntry);
     },
 
-    getMonthEntries: async (userId: string, monthDate: Date, timezone: string): Promise<TimeEntry[]> => {
+    getMonthEntries: async (userId: string, monthDate: Date): Promise<TimeEntry[]> => {
         const { getStartOfMonthInUTC, getEndOfMonthInUTC } = await import('@/lib/date-utils');
 
         // Ensure we pass a date instance that is correctly situated in the month we want
         // The UI passes 'new Date()' or a navigated date.
-        const start = getStartOfMonthInUTC(monthDate, timezone);
-        const end = getEndOfMonthInUTC(monthDate, timezone);
+        const start = getStartOfMonthInUTC(monthDate);
+        const end = getEndOfMonthInUTC(monthDate);
 
         const { data } = await supabase
             .from('time_entries')

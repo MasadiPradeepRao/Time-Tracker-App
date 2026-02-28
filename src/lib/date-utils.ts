@@ -2,12 +2,13 @@ import { intervalToDuration } from 'date-fns';
 import { formatInTimeZone, fromZonedTime } from 'date-fns-tz';
 
 // --- Timezone Logic Helpers ---
+const DEFAULT_TIMEZONE = 'Europe/Stockholm';
 
 /**
  * Returns the UTC ISO string corresponding to the start of the day in the SPECIFIED timezone.
  * Example: User in NY (-5). "Today" starts at 05:00 UTC.
  */
-export function getStartOfDayInUTC(date: Date = new Date(), timezone: string): string {
+export function getStartOfDayInUTC(date: Date = new Date(), timezone: string = DEFAULT_TIMEZONE): string {
     // 1. Get the "YYYY-MM-DD" string in the target timezone
     const localDateStr = formatInTimeZone(date, timezone, 'yyyy-MM-dd');
 
@@ -16,7 +17,7 @@ export function getStartOfDayInUTC(date: Date = new Date(), timezone: string): s
     return utcDate.toISOString();
 }
 
-export function getEndOfDayInUTC(date: Date = new Date(), timezone: string): string {
+export function getEndOfDayInUTC(date: Date = new Date(), timezone: string = DEFAULT_TIMEZONE): string {
     // 1. Get the "YYYY-MM-DD" string in the target timezone
     const localDateStr = formatInTimeZone(date, timezone, 'yyyy-MM-dd');
 
@@ -25,7 +26,7 @@ export function getEndOfDayInUTC(date: Date = new Date(), timezone: string): str
     return utcDate.toISOString();
 }
 
-export function getStartOfMonthInUTC(date: Date = new Date(), timezone: string): string {
+export function getStartOfMonthInUTC(date: Date = new Date(), timezone: string = DEFAULT_TIMEZONE): string {
     // 1. Get "YYYY-MM"
     const localMonthStr = formatInTimeZone(date, timezone, 'yyyy-MM');
 
@@ -34,7 +35,7 @@ export function getStartOfMonthInUTC(date: Date = new Date(), timezone: string):
     return utcDate.toISOString();
 }
 
-export function getEndOfMonthInUTC(date: Date = new Date(), timezone: string): string {
+export function getEndOfMonthInUTC(date: Date = new Date(), timezone: string = DEFAULT_TIMEZONE): string {
     // To find the end of the month, we can go to the start of the next month and subtract 1ms,
     // OR just use date math.
 
@@ -76,13 +77,13 @@ export function getEndOfMonthInUTC(date: Date = new Date(), timezone: string): s
 
 // --- Formatting Helpers (For UI) ---
 
-export function formatToLocalTime(isoString: string, timezone: string): string {
+export function formatToLocalTime(isoString: string, timezone: string = DEFAULT_TIMEZONE): string {
     if (!isoString) return '-';
     // Display strictly in the user's timezone
     return formatInTimeZone(new Date(isoString), timezone, 'h:mm:ss a');
 }
 
-export function formatToLocalDate(isoString: string, timezone: string): string {
+export function formatToLocalDate(isoString: string, timezone: string = DEFAULT_TIMEZONE): string {
     if (!isoString) return '-';
     return formatInTimeZone(new Date(isoString), timezone, 'MMM d, yyyy');
 }
@@ -91,7 +92,7 @@ export function formatToLocalDate(isoString: string, timezone: string): string {
  * Returns a YYYY-MM-DD string representing the LOCAL date of the event.
  * Used for grouping.
  */
-export function getLocalDayKey(isoString: string, timezone: string): string {
+export function getLocalDayKey(isoString: string, timezone: string = DEFAULT_TIMEZONE): string {
     if (!isoString) return '';
     return formatInTimeZone(new Date(isoString), timezone, 'yyyy-MM-dd');
 }

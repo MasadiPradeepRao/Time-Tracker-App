@@ -45,7 +45,7 @@ export default function ReminderSettings() {
         if (!user) return;
         setSaving(true);
 
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const timezone = "Europe/Stockholm";
 
         try {
             const { error } = await supabase
@@ -98,7 +98,7 @@ export default function ReminderSettings() {
                         onChange={(e) => setReminderTime(e.target.value)}
                         className="w-full sm:w-[200px]"
                     />
-                    <p className="text-xs text-gray-500 italic">Your timezone: {Intl.DateTimeFormat().resolvedOptions().timeZone}</p>
+                    <p className="text-xs text-gray-500 italic">Fixed timezone: Europe/Stockholm</p>
                 </div>
             </CardContent>
             <CardFooter>
