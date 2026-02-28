@@ -9,6 +9,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { formatToLocalTime } from "@/lib/date-utils";
 import { Loader2 } from "lucide-react";
 
+import { getUserAuditLogsAction } from "./actions";
+
 export default function AuditLogsPage() {
     const { user } = useAuth();
     const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -19,8 +21,9 @@ export default function AuditLogsPage() {
 
         const fetchLogs = async () => {
             try {
-                const data = await auditService.getUserLogs(user.id);
-                setLogs(data);
+                const { data, error } = await getUserAuditLogsAction();
+                if (error) throw new Error(error);
+                setLogs(data || []);
             } catch (err) {
                 console.error("Failed to fetch audit logs:", err);
             } finally {
