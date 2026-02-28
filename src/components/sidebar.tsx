@@ -22,6 +22,7 @@ export function SidebarContent() {
     if (!mounted) return null;
 
     const links = [
+        // Admin items
         {
             label: "Employees",
             href: "/admin",
@@ -29,34 +30,16 @@ export function SidebarContent() {
             roles: ['admin'],
         },
         {
-            label: user?.role === 'admin' ? "Admin Dashboard" : "Dashboard",
+            label: "Admin Dashboard",
             href: "/dashboard",
             icon: LayoutDashboard,
-            roles: ['employee', 'admin'],
-        },
-        {
-            label: "My Calendar",
-            href: "/calendar",
-            icon: Calendar,
-            roles: ['employee', 'admin'],
-        },
-        {
-            label: "Reminders",
-            href: "/reminders",
-            icon: Bell,
-            roles: ['employee', 'admin'],
-        },
-        {
-            label: "Audit Logs",
-            href: "/audit-logs",
-            icon: Activity,
-            roles: ['employee', 'admin'],
+            roles: ['admin'],
         },
         {
             label: "Monthly Summary",
             href: "/summary",
             icon: BarChart,
-            roles: ['employee', 'admin'],
+            roles: ['admin'],
         },
         {
             label: "On Duty",
@@ -69,6 +52,43 @@ export function SidebarContent() {
             href: "/admin/reports",
             icon: FileText,
             roles: ['admin'],
+        },
+        {
+            label: "Reminders",
+            href: "/reminders",
+            icon: Bell,
+            roles: ['admin'],
+        },
+        // Employee items
+        {
+            label: "Dashboard",
+            href: "/dashboard",
+            icon: LayoutDashboard,
+            roles: ['employee'],
+        },
+        {
+            label: "My Calendar",
+            href: "/calendar",
+            icon: Calendar,
+            roles: ['employee'],
+        },
+        {
+            label: "Reminders",
+            href: "/reminders",
+            icon: Bell,
+            roles: ['employee'],
+        },
+        {
+            label: "Audit Logs",
+            href: "/audit-logs",
+            icon: Activity,
+            roles: ['employee'],
+        },
+        {
+            label: "Monthly Summary",
+            href: "/summary",
+            icon: BarChart,
+            roles: ['employee'],
         },
     ];
 
