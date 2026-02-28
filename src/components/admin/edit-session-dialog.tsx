@@ -54,8 +54,8 @@ export function EditSessionDialog({ entry, onSuccess }: EditSessionDialogProps) 
 
                 if (error) throw new Error(error);
 
-                // Audit Log (Client-side localStorage as before)
-                await auditService.logChange(user.id, entry.id, 'UPDATE',
+                // Audit Log (Supabase via service)
+                await auditService.logChange(user.id, entry.userId, entry.id, 'UPDATE_TIME_ENTRY',
                     Object.entries(updates).map(([field, after]) => ({
                         field,
                         before: (entry as any)[field],

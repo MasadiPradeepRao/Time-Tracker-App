@@ -18,14 +18,16 @@ export interface TimeEntry {
 export interface AuditLog {
   id: string;
   adminId: string;
+  targetUserId: string;
   targetEntryId: string;
-  action: 'UPDATE' | 'CREATE' | 'DELETE';
+  action: 'UPDATE' | 'CREATE' | 'DELETE' | 'UPDATE_TIME_ENTRY' | 'DELETE_TIME_ENTRY';
   changes: {
     field: string;
     before: any;
     after: any;
   }[];
   timestamp: string; // ISO string (UTC)
+  adminName?: string; // For UI display
 }
 
 export interface MonthlyReport {

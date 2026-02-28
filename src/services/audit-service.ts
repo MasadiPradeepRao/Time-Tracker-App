@@ -1,39 +1,74 @@
 import { AuditLog } from '@/types';
-
-// Mock DB for Audit Logs
-let MOCK_AUDIT_LOGS: AuditLog[] = [];
+import { supabase } from '@/lib/supabase';
 
 export const auditService = {
     logChange: async (
         adminId: string,
+        targetUserId: string,
         targetEntryId: string,
-        action: 'UPDATE' | 'DELETE',
+        action: string,
         changes: { field: string; before: any; after: any }[]
     ): Promise<void> => {
-        const logEntry: AuditLog = {
-            id: 'audit_' + Date.now(),
-            adminId,
-            targetEntryId,
-            action,
-            changes,
-            timestamp: new Date().toISOString(),
-        };
+        const { error } = await supabase
+            .from('audit_logs')
+            .insert({
+                admin_id: adminId,
+                target_user_id: targetUserId,
+                target_entry_id: targetEntryId,
+                action,
+                changes
+            });
 
-        MOCK_AUDIT_LOGS.push(logEntry);
-        console.log('[Audit Log Created]', logEntry);
-
-        // Persist to local storage if in browser
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('audit_logs', JSON.stringify(MOCK_AUDIT_LOGS));
+        if (error) {
+            console.error('[Audit Log Error]', error);
+            throw error;
         }
     },
 
     getLogs: async (): Promise<AuditLog[]> => {
-        // Sync from storage
-        if (typeof window !== 'undefined') {
-            const stored = localStorage.getItem('audit_logs');
-            if (stored) MOCK_AUDIT_LOGS = JSON.parse(stored);
-        }
-        return MOCK_AUDIT_LOGS.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        const { data, error } = await supabase
+            .from('audit_logs')
+            .select(`
+                *,
+                admin:profiles!admin_id(name)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        return (data || []).map(log => ({
+            id: log.id,
+            adminId: log.admin_id,
+            targetUserId: log.target_user_id,
+            targetEntryId: log.target_entry_id,
+            action: log.action,
+            changes: log.changes,
+            timestamp: log.created_at,
+            adminName: log.admin?.name || 'Unknown Admin'
+        }));
+    },
+
+    getUserLogs: async (userId: string): Promise<AuditLog[]> => {
+        const { data, error } = await supabase
+            .from('audit_logs')
+            .select(`
+                *,
+                admin:profiles!admin_id(name)
+            `)
+            .eq('target_user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+
+        return (data || []).map(log => ({
+            id: log.id,
+            adminId: log.admin_id,
+            targetUserId: log.target_user_id,
+            targetEntryId: log.target_entry_id,
+            action: log.action,
+            changes: log.changes,
+            timestamp: log.created_at,
+            adminName: log.admin?.name || 'Unknown Admin'
+        }));
     }
 };

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/components/auth-provider";
-import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User, Bell } from "lucide-react";
+import { LayoutDashboard, Calendar, Users, FileText, LogOut, BarChart, ShieldCheck, User, Bell, Activity } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
 import { Logo } from "@/components/logo";
@@ -44,6 +44,12 @@ export function SidebarContent() {
             label: "Reminders",
             href: "/reminders",
             icon: Bell,
+            roles: ['employee', 'admin'],
+        },
+        {
+            label: "Audit Logs",
+            href: "/audit-logs",
+            icon: Activity,
             roles: ['employee', 'admin'],
         },
         {
