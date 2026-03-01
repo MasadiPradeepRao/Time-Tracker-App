@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { supabase } from "@/lib/supabase"; // Client for auth check (or use cookies if implementing proper server auth)
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
+import { auditService } from "@/services/audit-service";
 
 // We need to verify the user is an admin BEFORE using the admin client
 async function checkAdminAuth() {
@@ -249,8 +250,15 @@ export async function getAdminUserHistory(userId: string) {
 
 export async function updateTimeEntryAction(entryId: string, updates: { startTime?: string; endTime?: string | null }) {
     try {
-        await checkAdminAuth();
+        const adminUser = await checkAdminAuth();
         const adminClient = getSupabaseAdmin();
+
+        // 0. Get current state for audit log
+        const { data: currentEntry } = await adminClient
+            .from('time_entries')
+            .select('*')
+            .eq('id', entryId)
+            .single();
 
         const dbUpdates: any = {};
         if (updates.startTime) dbUpdates.start_time = updates.startTime;
@@ -265,9 +273,67 @@ export async function updateTimeEntryAction(entryId: string, updates: { startTim
 
         if (error) throw error;
 
+        // Log Audit
+        if (currentEntry) {
+            const changes: any[] = [];
+            if (updates.startTime && updates.startTime !== currentEntry.start_time) {
+                changes.push({ field: 'startTime', before: currentEntry.start_time, after: updates.startTime });
+            }
+            if (updates.endTime !== undefined && updates.endTime !== currentEntry.end_time) {
+                changes.push({ field: 'endTime', before: currentEntry.end_time, after: updates.endTime });
+            }
+
+            if (changes.length > 0) {
+                await auditService.logChange(
+                    adminUser.id,
+                    currentEntry.user_id,
+                    entryId,
+                    'UPDATE_TIME_ENTRY',
+                    changes
+                );
+            }
+        }
+
         return { data, error: null };
     } catch (error: any) {
         console.error("Admin update error:", error);
+        return { data: null, error: error.message };
+    }
+}
+
+export async function addManualTimeEntryAction(userId: string, startTime: string, endTime: string | null) {
+    try {
+        const adminUser = await checkAdminAuth();
+        const adminClient = getSupabaseAdmin();
+
+        // 1. Insert Entry
+        const { data: entry, error: entryError } = await adminClient
+            .from('time_entries')
+            .insert({
+                user_id: userId,
+                start_time: startTime,
+                end_time: endTime
+            })
+            .select()
+            .single();
+
+        if (entryError) throw entryError;
+
+        // 2. Log Audit
+        await auditService.logChange(
+            adminUser.id,
+            userId,
+            entry.id,
+            'CREATE_TIME_ENTRY',
+            [
+                { field: 'startTime', before: null, after: startTime },
+                { field: 'endTime', before: null, after: endTime }
+            ]
+        );
+
+        return { data: entry, error: null };
+    } catch (error: any) {
+        console.error("Admin manual entry error:", error);
         return { data: null, error: error.message };
     }
 }

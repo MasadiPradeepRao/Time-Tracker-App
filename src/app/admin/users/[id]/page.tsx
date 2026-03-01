@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { formatToLocalTime, formatToLocalDate, calculateDuration } from "@/lib/date-utils";
+import { AddShiftDialog } from "./add-shift-dialog";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -63,11 +64,43 @@ export default function AdminUserPage({ params }: Props) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center space-x-4">
-                <Button variant="ghost" size="icon" onClick={() => router.back()}>
-                    <ArrowLeft className="h-5 w-5" />
-                </Button>
-                <h1 className="text-2xl font-bold">User History</h1>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center space-x-4">
+                    <Button variant="ghost" size="icon" onClick={() => router.back()}>
+                        <ArrowLeft className="h-5 w-5" />
+                    </Button>
+                    <h1 className="text-2xl font-bold">User History</h1>
+                </div>
+                {!loading && (
+                    <AddShiftDialog
+                        userId={id}
+                        timezone={userTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                        onSuccess={() => {
+                            // Re-fetch data
+                            const loadData = async () => {
+                                setLoading(true);
+                                try {
+                                    const { data, error } = await getAdminUserHistory(id);
+                                    if (data) {
+                                        const { entries: rawEntries } = data;
+                                        const mapped: TimeEntry[] = (rawEntries || []).map((r: any) => ({
+                                            id: r.id,
+                                            userId: r.user_id,
+                                            startTime: r.start_time,
+                                            endTime: r.end_time
+                                        }));
+                                        setEntries(mapped);
+                                    }
+                                } catch (err) {
+                                    console.error(err);
+                                } finally {
+                                    setLoading(false);
+                                }
+                            };
+                            loadData();
+                        }}
+                    />
+                )}
             </div>
 
             <Card>
