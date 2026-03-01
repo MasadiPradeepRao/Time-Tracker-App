@@ -289,7 +289,8 @@ export async function updateTimeEntryAction(entryId: string, updates: { startTim
                     currentEntry.user_id,
                     entryId,
                     'UPDATE_TIME_ENTRY',
-                    changes
+                    changes,
+                    adminClient
                 );
             }
         }
@@ -328,7 +329,8 @@ export async function addManualTimeEntryAction(userId: string, startTime: string
             [
                 { field: 'startTime', before: null, after: startTime },
                 { field: 'endTime', before: null, after: endTime }
-            ]
+            ],
+            adminClient
         );
 
         return { data: entry, error: null };

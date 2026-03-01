@@ -7,9 +7,11 @@ export const auditService = {
         targetUserId: string,
         targetEntryId: string,
         action: string,
-        changes: { field: string; before: any; after: any }[]
+        changes: { field: string; before: any; after: any }[],
+        providedClient?: any
     ): Promise<void> => {
-        const { error } = await supabase
+        const client = providedClient || supabase;
+        const { error } = await client
             .from('audit_logs')
             .insert({
                 admin_id: adminId,
