@@ -7,9 +7,9 @@ import { TimeEntry } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format, addMonths, subMonths, isSameMonth } from "date-fns";
-import { ChevronLeft, ChevronRight, BarChart, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, BarChart, FileDown } from "lucide-react";
 import { calculateDuration, formatToLocalDate, formatToLocalTime } from "@/lib/date-utils";
-import { downloadCSV } from "@/lib/export-utils";
+import { downloadPDF } from "@/lib/export-utils";
 
 export default function SummaryPage() {
     const { user } = useAuth();
@@ -22,8 +22,8 @@ export default function SummaryPage() {
         setLoading(true);
         timeService.getMonthEntries(user.id, month)
             .then((data) => {
-                // Filter out active sessions for historical summary
-                setEntries(data.filter(e => e.endTime));
+                // Filter out active sessions for historical summary and sort chronologically
+                setEntries(data.filter(e => e.endTime).sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime()));
             })
             .finally(() => setLoading(false));
     }, [user, month]);
@@ -54,7 +54,7 @@ export default function SummaryPage() {
         return acc;
     }, {} as Record<string, number>);
 
-    const handleExportCSV = () => {
+    const handleExportPDF = () => {
         if (!entries || entries.length === 0) return;
         const timezone = user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
         
@@ -65,7 +65,12 @@ export default function SummaryPage() {
             "Duration": calculateDuration(e.startTime, e.endTime)
         }));
 
-        downloadCSV(`monthly_shift_timings_${format(month, 'yyyy_MM')}.csv`, rows);
+        downloadPDF(
+            `monthly_shift_timings_${format(month, 'yyyy_MM')}.pdf`, 
+            `Monthly Shift Timings - ${format(month, 'MMMM yyyy')}`,
+            rows, 
+            `${totalHours}h ${totalMinutes}m`
+        );
     };
 
     return (
@@ -84,9 +89,9 @@ export default function SummaryPage() {
                     </Button>
                 </div>
                 {entries.length > 0 && (
-                    <Button variant="outline" onClick={handleExportCSV} className="self-start sm:self-auto flex items-center space-x-2">
-                        <Download className="h-4 w-4" />
-                        <span>Export CSV</span>
+                    <Button variant="outline" onClick={handleExportPDF} className="self-start sm:self-auto flex items-center space-x-2">
+                        <FileDown className="h-4 w-4" />
+                        <span>Export PDF</span>
                     </Button>
                 )}
             </div>
