@@ -7,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Download } from "lucide-react";
 import { formatToLocalTime, formatToLocalDate, calculateDuration } from "@/lib/date-utils";
 import { AddShiftDialog } from "./add-shift-dialog";
+import { downloadCSV } from "@/lib/export-utils";
 
 interface Props {
     params: Promise<{ id: string }>;
@@ -62,6 +63,21 @@ export default function AdminUserPage({ params }: Props) {
         loadData();
     }, [id]);
 
+    const handleExportCSV = () => {
+        if (!entries || entries.length === 0) return;
+        const timezone = userTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        const rows = entries.map(e => ({
+            "Date": formatToLocalDate(e.startTime, timezone),
+            "Check In": formatToLocalTime(e.startTime, timezone),
+            "Check Out": e.endTime ? formatToLocalTime(e.endTime, timezone) : "Active",
+            "Duration": calculateDuration(e.startTime, e.endTime)
+        }));
+
+        const safeUserName = (userName || userEmail || 'user').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        downloadCSV(`shift_timings_${safeUserName}.csv`, rows);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -71,36 +87,44 @@ export default function AdminUserPage({ params }: Props) {
                     </Button>
                     <h1 className="text-2xl font-bold">User History</h1>
                 </div>
-                {!loading && (
-                    <AddShiftDialog
-                        userId={id}
-                        timezone={userTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
-                        onSuccess={() => {
-                            // Re-fetch data
-                            const loadData = async () => {
-                                setLoading(true);
-                                try {
-                                    const { data, error } = await getAdminUserHistory(id);
-                                    if (data) {
-                                        const { entries: rawEntries } = data;
-                                        const mapped: TimeEntry[] = (rawEntries || []).map((r: any) => ({
-                                            id: r.id,
-                                            userId: r.user_id,
-                                            startTime: r.start_time,
-                                            endTime: r.end_time
-                                        }));
-                                        setEntries(mapped);
+                <div className="flex items-center space-x-2 gap-2">
+                    {!loading && (
+                        <AddShiftDialog
+                            userId={id}
+                            timezone={userTimezone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                            onSuccess={() => {
+                                // Re-fetch data
+                                const loadData = async () => {
+                                    setLoading(true);
+                                    try {
+                                        const { data, error } = await getAdminUserHistory(id);
+                                        if (data) {
+                                            const { entries: rawEntries } = data;
+                                            const mapped: TimeEntry[] = (rawEntries || []).map((r: any) => ({
+                                                id: r.id,
+                                                userId: r.user_id,
+                                                startTime: r.start_time,
+                                                endTime: r.end_time
+                                            }));
+                                            setEntries(mapped);
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                    } finally {
+                                        setLoading(false);
                                     }
-                                } catch (err) {
-                                    console.error(err);
-                                } finally {
-                                    setLoading(false);
-                                }
-                            };
-                            loadData();
-                        }}
-                    />
-                )}
+                                };
+                                loadData();
+                            }}
+                        />
+                    )}
+                    {entries.length > 0 && (
+                        <Button variant="outline" onClick={handleExportCSV} className="flex items-center space-x-2">
+                            <Download className="h-4 w-4" />
+                            <span>Export CSV</span>
+                        </Button>
+                    )}
+                </div>
             </div>
 
             <Card>

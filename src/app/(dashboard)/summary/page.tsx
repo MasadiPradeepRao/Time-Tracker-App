@@ -7,8 +7,9 @@ import { TimeEntry } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { format, addMonths, subMonths, isSameMonth } from "date-fns";
-import { ChevronLeft, ChevronRight, BarChart } from "lucide-react";
-import { calculateDuration } from "@/lib/date-utils";
+import { ChevronLeft, ChevronRight, BarChart, Download } from "lucide-react";
+import { calculateDuration, formatToLocalDate, formatToLocalTime } from "@/lib/date-utils";
+import { downloadCSV } from "@/lib/export-utils";
 
 export default function SummaryPage() {
     const { user } = useAuth();
@@ -53,6 +54,20 @@ export default function SummaryPage() {
         return acc;
     }, {} as Record<string, number>);
 
+    const handleExportCSV = () => {
+        if (!entries || entries.length === 0) return;
+        const timezone = user?.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+        
+        const rows = entries.map(e => ({
+            "Date": formatToLocalDate(e.startTime, timezone),
+            "Check In": formatToLocalTime(e.startTime, timezone),
+            "Check Out": e.endTime ? formatToLocalTime(e.endTime, timezone) : "Active",
+            "Duration": calculateDuration(e.startTime, e.endTime)
+        }));
+
+        downloadCSV(`monthly_shift_timings_${format(month, 'yyyy_MM')}.csv`, rows);
+    };
+
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -68,6 +83,12 @@ export default function SummaryPage() {
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
+                {entries.length > 0 && (
+                    <Button variant="outline" onClick={handleExportCSV} className="self-start sm:self-auto flex items-center space-x-2">
+                        <Download className="h-4 w-4" />
+                        <span>Export CSV</span>
+                    </Button>
+                )}
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
