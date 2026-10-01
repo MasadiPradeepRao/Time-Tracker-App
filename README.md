@@ -1,3 +1,4 @@
+[![Architecture diagram of masadipradeeprao/time-tracker-app](https://gitdiagram.com/masadipradeeprao/time-tracker-app/diagram.png)](https://gitdiagram.com/masadipradeeprao/time-tracker-app?utm_source=readme&utm_medium=picture)
 # 🕒 Hourlog: Enterprise-Grade Workforce Management
 
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
